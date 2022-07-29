@@ -14,7 +14,7 @@ class Epic:
         self.init_date = init_date
         self.status = status
         self.assigned = assigned
-        self.description = description
+        self.description = description.replace("{", "_").replace("}", "_")
         self.subject = subject
         self.related_us = self.populate_us_list(related_us)
         self.ref = ref
@@ -25,16 +25,20 @@ class Epic:
 
 
 class UserStory:
+    def populate_tasks_list(self, tasks):
+        return [int(i) for i in tasks.split(",")]
+
     def __init__(self, us_id, ref, subject, description, assigned, status, init_date, fin_date, tasks):
         self.us_id = us_id
         self.fin_date = fin_date
         self.init_date = init_date
         self.status = status
         self.assigned = assigned
-        self.description = description
+        self.description = description.replace("{", "_").replace("}", "_")
         self.subject = subject
-        self.tasks = tasks
+        self.tasks = self.populate_tasks_list(tasks) if tasks is not '' else []
         self.ref = ref
+        self.task_dict = {}
 
     def __repr__(self):
         return str(self.__dict__)
@@ -45,13 +49,13 @@ class Task:
         self.task_id = task_id
         self.ref = ref
         self.subject = subject
-        self.description = description
+        self.description = description.replace("{", "_").replace("}", "_")
         self.us = us
         self.assigned = assigned
         self.status = status
         self.init_date = init_date
         self.fin_date = fin_date
-        self.hours = hours
+        self.hours = hours.replace(",", ".")
 
     def __repr__(self):
         return str(self.__dict__)
@@ -74,8 +78,8 @@ def struc_epic():
         for struc_row in struc_csv_reader:
             if struc_csv_reader.line_num > 1:
                 epic = Epic(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[6], struc_row[8], struc_row[16], struc_row[17], struc_row[18])
-                for related_us in epic.related_us:
-                    temp_us = us_dict[int(related_us)]
+                for rel_us in epic.related_us:
+                    temp_us = us_dict[int(rel_us)]
                     epic.us_dict[temp_us.ref] = temp_us
                 epic_dict[epic.epic_id] = epic
 
@@ -90,7 +94,10 @@ def struc_us():
         for struc_row in struc_csv_reader:
             if struc_csv_reader.line_num > 1:
                 us = UserStory(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[10], struc_row[14], struc_row[25], struc_row[27], struc_row[35])
-                # print(us)
+
+                for related_task in us.tasks:
+                    temp_task = task_dict[int(related_task)]
+                    us.task_dict[temp_task.ref] = temp_task
                 us_dict[int(us.ref)] = us
 
 
@@ -105,16 +112,15 @@ def struc_task():
             if struc_csv_reader.line_num > 1:
                 task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
                 # print(task)
-                task_dict[task.task_id] = task
+                task_dict[int(task.ref)] = task
 
 
 def estructura_epic_userstory_task():
+    struc_task()
     struc_us() # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
     struc_epic()
     print(epic_dict)
-    print(epic_dict[127900])
-
-    struc_task()
+    # print(epic_dict[166984])
 
 
 def csv_reader():
