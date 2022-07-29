@@ -4,10 +4,8 @@ import requests
 from datetime import date, datetime, timedelta
 import json
 
-class Epic:
-    def populate_us_list(self, related_us):
-        return [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
 
+class Epic:
     def __init__(self,  epic_id, ref, subject, description, assigned, status, init_date, fin_date, related_us):
         self.epic_id = int(epic_id)
         self.fin_date = fin_date
@@ -16,7 +14,7 @@ class Epic:
         self.assigned = assigned
         self.description = description.replace("{", "_").replace("}", "_")
         self.subject = subject
-        self.related_us = self.populate_us_list(related_us)
+        self.related_us = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
         self.ref = ref
         self.us_dict = {}
 
@@ -25,9 +23,6 @@ class Epic:
 
 
 class UserStory:
-    def populate_tasks_list(self, tasks):
-        return [int(i) for i in tasks.split(",")]
-
     def __init__(self, us_id, ref, subject, description, assigned, status, init_date, fin_date, tasks):
         self.us_id = us_id
         self.fin_date = fin_date
@@ -36,7 +31,7 @@ class UserStory:
         self.assigned = assigned
         self.description = description.replace("{", "_").replace("}", "_")
         self.subject = subject
-        self.tasks = self.populate_tasks_list(tasks) if tasks is not '' else []
+        self.tasks = [int(i) for i in tasks.split(",")] if tasks != '' else []
         self.ref = ref
         self.task_dict = {}
 
@@ -61,7 +56,9 @@ class Task:
         return str(self.__dict__)
 
 
-path = 'C:/Users/dalares/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+# path = 'C:/Users/dalares/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+path = 'C:/Users/Popolo/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+
 todayF = date.today().strftime("%d-%b-%Y")  # ddmmaaaa
 epic_dict = {}
 us_dict = {}
@@ -111,7 +108,6 @@ def struc_task():
         for row in struc_csv_reader:
             if struc_csv_reader.line_num > 1:
                 task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
-                # print(task)
                 task_dict[int(task.ref)] = task
 
 
