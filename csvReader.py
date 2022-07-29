@@ -2,7 +2,7 @@ import csv
 from fpdf import FPDF
 import requests
 from datetime import date, datetime, timedelta
-
+import json
 
 class Epic:
     def populate_us_list(self, related_us):
@@ -119,7 +119,9 @@ def estructura_epic_userstory_task():
     struc_task()
     struc_us() # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
     struc_epic()
-    print(epic_dict)
+    # print(epic_dict)
+    json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
+    print(json_string)
     # print(epic_dict[166984])
 
 
