@@ -4,38 +4,67 @@ import requests
 from datetime import date, datetime, timedelta
 
 
-class Task:
-    def __init__(self, subject, description, us, assigned, status, init_date, fin_date, hours):
-        self.hours = hours
-        self.fin_date = fin_date
-        self.init_date = init_date
-        self.status = status
-        self.assigned = assigned
-        self.description = description
-        self.subject = subject
-        self.us = us
-
-
 class Epic:
+    def populate_us_list(self, related_us):
+        return [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
+
     def __init__(self,  epic_id, ref, subject, description, assigned, status, init_date, fin_date, related_us):
-        self.epic_id = epic_id
+        self.epic_id = int(epic_id)
         self.fin_date = fin_date
         self.init_date = init_date
         self.status = status
         self.assigned = assigned
         self.description = description
         self.subject = subject
-        self.related_us = related_us
+        self.related_us = self.populate_us_list(related_us)
+        self.ref = ref
+        self.us_dict = {}
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class UserStory:
+    def __init__(self, us_id, ref, subject, description, assigned, status, init_date, fin_date, tasks):
+        self.us_id = us_id
+        self.fin_date = fin_date
+        self.init_date = init_date
+        self.status = status
+        self.assigned = assigned
+        self.description = description
+        self.subject = subject
+        self.tasks = tasks
         self.ref = ref
 
     def __repr__(self):
         return str(self.__dict__)
 
 
-def estructura_epic_userstory_task():
-    path = 'C:/Users/Popolo/PycharmProjects/Taiga'  # Ruta donde descargamos y creamos el .pdf
-    todayF = date.today().strftime("%d-%b-%Y")  # ddmmaaaa
+class Task:
+    def __init__(self, task_id, ref, subject, description, us, assigned, status, init_date, fin_date, hours):
+        self.task_id = task_id
+        self.ref = ref
+        self.subject = subject
+        self.description = description
+        self.us = us
+        self.assigned = assigned
+        self.status = status
+        self.init_date = init_date
+        self.fin_date = fin_date
+        self.hours = hours
 
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+path = 'C:/Users/dalares/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+todayF = date.today().strftime("%d-%b-%Y")  # ddmmaaaa
+epic_dict = {}
+us_dict = {}
+task_dict = {}
+
+
+def struc_epic():
     epic_url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
     filename = "Epic" + " - " + str(todayF)
     request = requests.get(epic_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -43,10 +72,15 @@ def estructura_epic_userstory_task():
     with open(path + filename + '.csv', encoding="latin-1") as csv_file:
         struc_csv_reader = csv.reader(csv_file, delimiter=',')
         for struc_row in struc_csv_reader:
-            print(f'{struc_row[0]},{struc_row[1]},{struc_row[2]},{struc_row[3]},{struc_row[6]},{struc_row[8]},{struc_row[16]},{struc_row[17]},{struc_row[18]}')
-            epic = Epic(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[6], struc_row[8], struc_row[16], struc_row[17], struc_row[18])
-            print(epic)
+            if struc_csv_reader.line_num > 1:
+                epic = Epic(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[6], struc_row[8], struc_row[16], struc_row[17], struc_row[18])
+                for related_us in epic.related_us:
+                    temp_us = us_dict[int(related_us)]
+                    epic.us_dict[temp_us.ref] = temp_us
+                epic_dict[epic.epic_id] = epic
 
+
+def struc_us():
     us_url = 'https://api.taiga.io/api/v1/userstories/csv?uuid=c5994f0ac74c46bd84adb5e061546f86'
     filename = "US" + " - " + str(todayF)
     request = requests.get(us_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -54,10 +88,13 @@ def estructura_epic_userstory_task():
     with open(path + filename + '.csv', encoding="latin-1") as csv_file:
         struc_csv_reader = csv.reader(csv_file, delimiter=',')
         for struc_row in struc_csv_reader:
-            print(f'{struc_row[0]},{struc_row[1]},{struc_row[2]},{struc_row[3]},{struc_row[6]},{struc_row[8]},{struc_row[16]},{struc_row[17]},{struc_row[18]}')
-            us = Epic(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[6], struc_row[8], struc_row[16], struc_row[17], struc_row[18])
-            print(us)
+            if struc_csv_reader.line_num > 1:
+                us = UserStory(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[10], struc_row[14], struc_row[25], struc_row[27], struc_row[35])
+                # print(us)
+                us_dict[int(us.ref)] = us
 
+
+def struc_task():
     task_url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
     filename = "Task" + " - " + str(todayF)
     request = requests.get(task_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -65,8 +102,20 @@ def estructura_epic_userstory_task():
     with open(path + filename + '.csv', encoding="latin-1") as csv_file:
         struc_csv_reader = csv.reader(csv_file, delimiter=',')
         for row in struc_csv_reader:
-            task = Task(row[2], row[3], row[4], row[12], row[13], row[23], row[25], row[28])
-            print(task)
+            if struc_csv_reader.line_num > 1:
+                task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
+                # print(task)
+                task_dict[task.task_id] = task
+
+
+def estructura_epic_userstory_task():
+    struc_us() # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
+    struc_epic()
+    print(epic_dict)
+    print(epic_dict[127900])
+
+    struc_task()
+
 
 def csv_reader():
     # 0- Tasks, 1- User Stories
@@ -210,6 +259,7 @@ def csv_reader():
     pdf.output(path + filename + ".pdf")
     pdfWeek.output(path + filename + "Week.pdf")
     print(horasUS)
+
 
 #csv_reader()
 estructura_epic_userstory_task()
