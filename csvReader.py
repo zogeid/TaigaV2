@@ -308,7 +308,7 @@ def epic_dict_printer():
                 pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
                 pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
                 pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
-
+        pdf.multi_cell(200, 10, txt="", align='L')
     pdf.output(filename + ".pdf")
 
 
