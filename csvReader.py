@@ -113,11 +113,8 @@ def struc_task():
 
 def estructura_epic_userstory_task():
     struc_task()
-    struc_us() # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
+    struc_us()  # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
     struc_epic()
-    # print(epic_dict)
-    json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
-    print(json_string)
     # print(epic_dict[166984])
 
 
@@ -265,5 +262,58 @@ def csv_reader():
     print(horasUS)
 
 
-#csv_reader()
+def epic_dict_printer():
+    today = date.today()
+    todayF = today.strftime("%d-%b-%Y")  # ddmmaaaa
+    filename = "pdf_v2"
+
+    # open pdf and set styles
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=15)
+
+    for e in epic_dict:
+        epic = epic_dict[e]
+
+        pdf.set_font("Arial", 'B', 15)
+        pdf.multi_cell(200, 10, txt=f'EPIC #{epic.ref} - {epic.subject} - @{epic.assigned}', align='L')
+        pdf.set_font("Arial", size=15)
+
+        pdf.multi_cell(200, 10, txt=f'DESC: {str(epic.description)}', align='L')
+        pdf.multi_cell(200, 10, txt=f'STATUS: {epic.status}', align='L')
+        pdf.multi_cell(200, 10, txt=f'INIT DATE: {epic.init_date}', align='L')
+        pdf.multi_cell(200, 10, txt=f'END DATE: {epic.fin_date}', align='L')
+        pdf.multi_cell(200, 10, txt=f'--> USER STORIES: {epic.related_us}', align='L')
+
+        for us in epic.related_us:
+            user_story = us_dict[us]
+            pdf.set_font("Arial", 'B', 15)
+            pdf.multi_cell(200, 10, txt=f'::::: USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
+            pdf.set_font("Arial", size=15)
+
+            pdf.multi_cell(200, 10, txt=f'DESC: {str(user_story.description)}', align='L')
+            pdf.multi_cell(200, 10, txt=f'STATUS: {user_story.status}', align='L')
+            pdf.multi_cell(200, 10, txt=f'INIT DATE: {user_story.init_date}', align='L')
+            pdf.multi_cell(200, 10, txt=f'END DATE: {user_story.fin_date}', align='L')
+            pdf.multi_cell(200, 10, txt=f'--> TASKS: {user_story.tasks}', align='L')
+
+            for t in user_story.tasks:
+                task = task_dict[t]
+                pdf.set_font("Arial", 'B', 15)
+                pdf.multi_cell(200, 10, txt=f':::::::::: TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
+                pdf.set_font("Arial", size=15)
+
+                pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
+                pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
+                pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
+                pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
+                pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
+
+    pdf.output(filename + ".pdf")
+
+
+# csv_reader()
 estructura_epic_userstory_task()
+epic_dict_printer()
+json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
+# print(json_string)
