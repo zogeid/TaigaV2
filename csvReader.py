@@ -1,68 +1,50 @@
+import time
+start = time.time()
 import csv
 from fpdf import FPDF
 import requests
 from datetime import date, datetime, timedelta
 import json
-
-
-class Epic:
-    def __init__(self,  epic_id, ref, subject, description, assigned, status, init_date, fin_date, related_us):
-        self.epic_id = int(epic_id)
-        self.fin_date = fin_date
-        self.init_date = init_date
-        self.status = status
-        self.assigned = assigned
-        self.description = description.replace("{", "_").replace("}", "_")
-        self.subject = subject
-        self.related_us = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
-        self.ref = ref
-        self.us_dict = {}
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-
-class UserStory:
-    def __init__(self, us_id, ref, subject, description, assigned, status, init_date, fin_date, tasks):
-        self.us_id = us_id
-        self.fin_date = fin_date
-        self.init_date = init_date
-        self.status = status
-        self.assigned = assigned
-        self.description = description.replace("{", "_").replace("}", "_")
-        self.subject = subject
-        self.tasks = [int(i) for i in tasks.split(",")] if tasks != '' else []
-        self.ref = ref
-        self.task_dict = {}
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-
-class Task:
-    def __init__(self, task_id, ref, subject, description, us, assigned, status, init_date, fin_date, hours):
-        self.task_id = task_id
-        self.ref = ref
-        self.subject = subject
-        self.description = description.replace("{", "_").replace("}", "_")
-        self.us = us
-        self.assigned = assigned
-        self.status = status
-        self.init_date = init_date
-        self.fin_date = fin_date
-        self.hours = hours.replace(",", ".")
-
-    def __repr__(self):
-        return str(self.__dict__)
-
+from Epic import Epic
+from UserStory import UserStory
+from Task import Task
 
 # path = 'C:/Users/dalares/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
-path = 'C:/Users/Popolo/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+# path = 'C:/Users/Popolo/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
+path = ''
 
 todayF = date.today().strftime("%d-%b-%Y")  # ddmmaaaa
 epic_dict = {}
 us_dict = {}
 task_dict = {}
+
+def struc_task():
+    task_url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
+    filename = "Task" + " - " + str(todayF)
+    request = requests.get(task_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
+    open(path + filename + '.csv', 'wb').write(request.content)
+    with open(path + filename + '.csv', encoding="latin-1") as csv_file:
+        struc_csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in struc_csv_reader:
+            if struc_csv_reader.line_num > 1:
+                task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
+                task_dict[int(task.ref)] = task
+
+
+def struc_us():
+    us_url = 'https://api.taiga.io/api/v1/userstories/csv?uuid=c5994f0ac74c46bd84adb5e061546f86'
+    filename = "US" + " - " + str(todayF)
+    request = requests.get(us_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
+    open(path + filename + '.csv', 'wb').write(request.content)
+    with open(path + filename + '.csv', encoding="latin-1") as csv_file:
+        struc_csv_reader = csv.reader(csv_file, delimiter=',')
+        for struc_row in struc_csv_reader:
+            if struc_csv_reader.line_num > 1:
+                us = UserStory(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[10], struc_row[14], struc_row[25], struc_row[27], struc_row[35])
+                for related_task in us.tasks:
+                    temp_task = task_dict[int(related_task)]
+                    us.task_dict[temp_task.ref] = temp_task
+                us_dict[int(us.ref)] = us
 
 
 def struc_epic():
@@ -79,36 +61,6 @@ def struc_epic():
                     temp_us = us_dict[int(rel_us)]
                     epic.us_dict[temp_us.ref] = temp_us
                 epic_dict[epic.epic_id] = epic
-
-
-def struc_us():
-    us_url = 'https://api.taiga.io/api/v1/userstories/csv?uuid=c5994f0ac74c46bd84adb5e061546f86'
-    filename = "US" + " - " + str(todayF)
-    request = requests.get(us_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
-    open(path + filename + '.csv', 'wb').write(request.content)
-    with open(path + filename + '.csv', encoding="latin-1") as csv_file:
-        struc_csv_reader = csv.reader(csv_file, delimiter=',')
-        for struc_row in struc_csv_reader:
-            if struc_csv_reader.line_num > 1:
-                us = UserStory(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[10], struc_row[14], struc_row[25], struc_row[27], struc_row[35])
-
-                for related_task in us.tasks:
-                    temp_task = task_dict[int(related_task)]
-                    us.task_dict[temp_task.ref] = temp_task
-                us_dict[int(us.ref)] = us
-
-
-def struc_task():
-    task_url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
-    filename = "Task" + " - " + str(todayF)
-    request = requests.get(task_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
-    open(path + filename + '.csv', 'wb').write(request.content)
-    with open(path + filename + '.csv', encoding="latin-1") as csv_file:
-        struc_csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in struc_csv_reader:
-            if struc_csv_reader.line_num > 1:
-                task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
-                task_dict[int(task.ref)] = task
 
 
 def estructura_epic_userstory_task():
@@ -133,9 +85,8 @@ def csv_reader():
         filename = "Epics" + " - " + str(todayF)
         url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
 
-
     path = 'C:/Users/Popolo/PycharmProjects/Taiga'  # Ruta donde descargamos y creamos el .pdf
-    #path = 'C:/Users/dalares/Downloads/'  # Ruta donde descargamos y creamos el .pdf
+    # path = 'C:/Users/dalares/Downloads/'  # Ruta donde descargamos y creamos el .pdf
     r = requests.get(url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
     open(path + filename + '.csv', 'wb').write(r.content)
 
@@ -162,7 +113,15 @@ def csv_reader():
 
     # para certif SLORAS task 1025, us 734
     horasUS = 0
-    userstories =[66,67,68,69,70,71,72,73,74,75,88,91,95,101,79,80,81,82,83,84,85,86,87,169,131,173,76,78,90,96,103,104,105,113,117,170,171,172,174,217,218,246,404,159,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,215,216,219,223,227,12,57,106,107,138,163,176,178,224,241,296,304,305,308,309,310,311,312,313,314,315,316,317,318,319,321,332,333,334,335,342,411,418,420,426,451,463,464,490,501,580,592,593,603,678,692,693,694,696,698,702,724,734,738,745,749,751,754,767,787,825,831,846,851,875,929,991,1002,1137]
+    userstories = [66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 88, 91, 95, 101, 79, 80, 81, 82, 83, 84, 85, 86, 87, 169,
+                   131, 173, 76, 78, 90, 96, 103, 104, 105, 113, 117, 170, 171, 172, 174, 217, 218, 246, 404, 159, 139,
+                   140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 179,
+                   180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,
+                   200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 215, 216, 219, 223, 227, 12,
+                   57, 106, 107, 138, 163, 176, 178, 224, 241, 296, 304, 305, 308, 309, 310, 311, 312, 313, 314, 315,
+                   316, 317, 318, 319, 321, 332, 333, 334, 335, 342, 411, 418, 420, 426, 451, 463, 464, 490, 501, 580,
+                   592, 593, 603, 678, 692, 693, 694, 696, 698, 702, 724, 734, 738, 745, 749, 751, 754, 767, 787, 825,
+                   831, 846, 851, 875, 929, 991, 1002, 1137]
     # para certif SLORAS task 1025, us 734
 
     with open(path + filename + '.csv', encoding="latin-1") as csv_file:
@@ -262,9 +221,11 @@ def csv_reader():
     print(horasUS)
 
 
-def epic_dict_printer():
+# mode: w:week, None:all
+def epic_dict_printer(mode):
+    sels=0
+    bk=0
     today = date.today()
-    todayF = today.strftime("%d-%b-%Y")  # ddmmaaaa
     filename = "pdf_v2"
 
     # open pdf and set styles
@@ -274,7 +235,6 @@ def epic_dict_printer():
 
     for e in epic_dict:
         epic = epic_dict[e]
-
         pdf.set_font("Arial", 'B', 15)
         pdf.multi_cell(200, 10, txt=f'EPIC #{epic.ref} - {epic.subject} - @{epic.assigned}', align='L')
         pdf.set_font("Arial", size=15)
@@ -288,7 +248,7 @@ def epic_dict_printer():
         for us in epic.related_us:
             user_story = us_dict[us]
             pdf.set_font("Arial", 'B', 15)
-            pdf.multi_cell(200, 10, txt=f'::::: USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
+            pdf.multi_cell(200, 10, txt=f'      USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
             pdf.set_font("Arial", size=15)
 
             pdf.multi_cell(200, 10, txt=f'DESC: {str(user_story.description)}', align='L')
@@ -299,21 +259,29 @@ def epic_dict_printer():
 
             for t in user_story.tasks:
                 task = task_dict[t]
-                pdf.set_font("Arial", 'B', 15)
-                pdf.multi_cell(200, 10, txt=f':::::::::: TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
-                pdf.set_font("Arial", size=15)
 
-                pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
-                pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
-                pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
-                pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
-                pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
+                if mode == 'w' and datetime.strptime(task.init_date[2:19], '%y-%m-%d %H:%M:%S') < (datetime.today() - timedelta(days=5)):
+                    bk=bk+1
+                    break
+                else:
+                    sels=sels + 1
+                    pdf.set_font("Arial", 'B', 15)
+                    pdf.multi_cell(200, 10, txt=f'            TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
+                    pdf.set_font("Arial", size=15)
+
+                    pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
+                    pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
+                    pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
+                    pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
+                    pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
         pdf.multi_cell(200, 10, txt="", align='L')
     pdf.output(filename + ".pdf")
+    print(bk)
+    print(sels)
 
 
 # csv_reader()
 estructura_epic_userstory_task()
-epic_dict_printer()
-json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
-# print(json_string)
+epic_dict_printer('w')
+# json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
+print(f'Time elapsed: ', timedelta(seconds = time.time()-start))
