@@ -7,7 +7,7 @@ class Epic:
         self.assigned = assigned
         self.description = description.replace("{", "_").replace("}", "_")
         self.subject = subject
-        self.related_us = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
+        self.uss = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
         self.ref = ref
         self.us_dict = {}
 

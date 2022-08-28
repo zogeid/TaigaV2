@@ -1,5 +1,4 @@
 import time
-start = time.time()
 import csv
 from fpdf import FPDF
 import requests
@@ -8,6 +7,7 @@ import json
 from Epic import Epic
 from UserStory import UserStory
 from Task import Task
+start = time.time()
 
 # path = 'C:/Users/dalares/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
 # path = 'C:/Users/Popolo/PycharmProjects/TaigaV2'  # Ruta donde descargamos y creamos el .pdf
@@ -18,7 +18,8 @@ epic_dict = {}
 us_dict = {}
 task_dict = {}
 
-def struc_task():
+
+def struc_task(mode):
     task_url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
     filename = "Task" + " - " + str(todayF)
     request = requests.get(task_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -28,10 +29,11 @@ def struc_task():
         for row in struc_csv_reader:
             if struc_csv_reader.line_num > 1:
                 task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
-                task_dict[int(task.ref)] = task
+                if mode == 'w' and datetime.strptime(task.init_date[2:19], '%y-%m-%d %H:%M:%S') > (datetime.today() - timedelta(days=5)):
+                    task_dict[int(task.ref)] = task
 
 
-def struc_us():
+def struc_us(mode):
     us_url = 'https://api.taiga.io/api/v1/userstories/csv?uuid=c5994f0ac74c46bd84adb5e061546f86'
     filename = "US" + " - " + str(todayF)
     request = requests.get(us_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -42,12 +44,16 @@ def struc_us():
             if struc_csv_reader.line_num > 1:
                 us = UserStory(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[10], struc_row[14], struc_row[25], struc_row[27], struc_row[35])
                 for related_task in us.tasks:
-                    temp_task = task_dict[int(related_task)]
-                    us.task_dict[temp_task.ref] = temp_task
-                us_dict[int(us.ref)] = us
+                    try:
+                        temp_task = task_dict[int(related_task)]
+                        us.task_dict[temp_task.ref] = temp_task
+                    except KeyError:
+                        pass
+                if (mode == 'w' and us.task_dict) or mode != 'w':
+                    us_dict[int(us.ref)] = us
 
 
-def struc_epic():
+def struc_epic(mode):
     epic_url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
     filename = "Epic" + " - " + str(todayF)
     request = requests.get(epic_url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
@@ -57,16 +63,20 @@ def struc_epic():
         for struc_row in struc_csv_reader:
             if struc_csv_reader.line_num > 1:
                 epic = Epic(struc_row[0], struc_row[1], struc_row[2], struc_row[3], struc_row[6], struc_row[8], struc_row[16], struc_row[17], struc_row[18])
-                for rel_us in epic.related_us:
-                    temp_us = us_dict[int(rel_us)]
-                    epic.us_dict[temp_us.ref] = temp_us
-                epic_dict[epic.epic_id] = epic
+                for rel_us in epic.uss:
+                    try:
+                        temp_us = us_dict[int(rel_us)]
+                        epic.us_dict[temp_us.ref] = temp_us
+                    except KeyError:
+                        pass
+                if (mode == 'w' and epic.us_dict) or mode != 'w':
+                    epic_dict[epic.epic_id] = epic
 
 
-def estructura_epic_userstory_task():
-    struc_task()
-    struc_us()  # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
-    struc_epic()
+def estructura_epic_userstory_task(mode):
+    struc_task(mode)
+    struc_us(mode)  # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
+    struc_epic(mode)
     # print(epic_dict[166984])
 
 
@@ -222,10 +232,7 @@ def csv_reader():
 
 
 # mode: w:week, None:all
-def epic_dict_printer(mode):
-    sels=0
-    bk=0
-    today = date.today()
+def epic_dict_printer():
     filename = "pdf_v2"
 
     # open pdf and set styles
@@ -243,9 +250,9 @@ def epic_dict_printer(mode):
         pdf.multi_cell(200, 10, txt=f'STATUS: {epic.status}', align='L')
         pdf.multi_cell(200, 10, txt=f'INIT DATE: {epic.init_date}', align='L')
         pdf.multi_cell(200, 10, txt=f'END DATE: {epic.fin_date}', align='L')
-        pdf.multi_cell(200, 10, txt=f'--> USER STORIES: {epic.related_us}', align='L')
+        pdf.multi_cell(200, 10, txt=f'--> USER STORIES: {epic.uss}', align='L')
 
-        for us in epic.related_us:
+        for us in epic.uss:
             user_story = us_dict[us]
             pdf.set_font("Arial", 'B', 15)
             pdf.multi_cell(200, 10, txt=f'      USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
@@ -258,13 +265,8 @@ def epic_dict_printer(mode):
             pdf.multi_cell(200, 10, txt=f'--> TASKS: {user_story.tasks}', align='L')
 
             for t in user_story.tasks:
-                task = task_dict[t]
-
-                if mode == 'w' and datetime.strptime(task.init_date[2:19], '%y-%m-%d %H:%M:%S') < (datetime.today() - timedelta(days=5)):
-                    bk=bk+1
-                    break
-                else:
-                    sels=sels + 1
+                try:
+                    task = task_dict[t]
                     pdf.set_font("Arial", 'B', 15)
                     pdf.multi_cell(200, 10, txt=f'            TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
                     pdf.set_font("Arial", size=15)
@@ -274,14 +276,22 @@ def epic_dict_printer(mode):
                     pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
                     pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
                     pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
+                except KeyError:
+                    pass
         pdf.multi_cell(200, 10, txt="", align='L')
     pdf.output(filename + ".pdf")
-    print(bk)
-    print(sels)
+
+from reportlab.pdfgen import canvas
+def json2pdf(param):
+    c = canvas.Canvas("arquivo.pdf")
+    #(x, y, string)
+    c.drawString(0,0,str(param))
+    c.save()
 
 
 # csv_reader()
-estructura_epic_userstory_task()
-epic_dict_printer('w')
-# json_string = json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0)
+estructura_epic_userstory_task('w')
+json2pdf(epic_dict)
+#json2pdf(json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0))
+# epic_dict_printer()
 print(f'Time elapsed: ', timedelta(seconds = time.time()-start))
