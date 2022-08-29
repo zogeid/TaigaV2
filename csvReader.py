@@ -18,6 +18,7 @@ epic_dict = {}
 us_dict = {}
 task_dict = {}
 
+# TITULO GENERAL, 1, 1.1, 1.1.1
 
 # mode: w:week, None:all
 def struc_task(mode):
@@ -32,6 +33,7 @@ def struc_task(mode):
                 task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23], row[25], row[28])
                 if mode == 'w' and datetime.strptime(task.init_date[2:19], '%y-%m-%d %H:%M:%S') > (datetime.today() - timedelta(days=5)):
                     task_dict[int(task.ref)] = task
+
 
 # mode: w:week, None:all
 def struc_us(mode):
@@ -52,6 +54,7 @@ def struc_us(mode):
                         pass
                 if (mode == 'w' and us.task_dict) or mode != 'w':
                     us_dict[int(us.ref)] = us
+
 
 # mode: w:week, None:all
 def struc_epic(mode):
@@ -81,208 +84,7 @@ def estructura_epic_userstory_task(mode):
     # print(epic_dict[166984])
 
 
-def csv_reader():
-    # 0- Tasks, 1- User Stories
-    modo = 0
-    today = date.today()
-    todayF = today.strftime("%d-%b-%Y")  # ddmmaaaa
-    if modo == 0:
-        filename = "Tareas" + " - " + str(todayF)
-        url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
-    elif modo == 1:
-        filename = "Historias de usuario" + " - " + str(todayF)
-        url = 'https://api.taiga.io/api/v1/userstories/csv?uuid=c5994f0ac74c46bd84adb5e061546f86'
-    else:
-        filename = "Epics" + " - " + str(todayF)
-        url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
-
-    path = 'C:/Users/Popolo/PycharmProjects/Taiga'  # Ruta donde descargamos y creamos el .pdf
-    # path = 'C:/Users/dalares/Downloads/'  # Ruta donde descargamos y creamos el .pdf
-    r = requests.get(url, allow_redirects=True)  # download .csv from Taiga's URL and save it in path
-    open(path + filename + '.csv', 'wb').write(r.content)
-
-    # open pdf and set styles
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=15)
-
-    # open weekly pdf
-    pdfWeek = FPDF()
-    pdfWeek.add_page()
-    pdfWeek.set_font("Arial", size=15)
-
-    lista = []
-    countAsalomon = 0
-    cHorasAsalomon = 0
-    textAsalomon = ""
-    countAicucu = 0
-    cHorasAicucu = 0
-    textAicucu = ""
-    countJlavina = 0
-    textJlavina = ""
-    cHorasJlavina = 0
-
-    # para certif SLORAS task 1025, us 734
-    horasUS = 0
-    userstories = [66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 88, 91, 95, 101, 79, 80, 81, 82, 83, 84, 85, 86, 87, 169,
-                   131, 173, 76, 78, 90, 96, 103, 104, 105, 113, 117, 170, 171, 172, 174, 217, 218, 246, 404, 159, 139,
-                   140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 179,
-                   180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199,
-                   200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 215, 216, 219, 223, 227, 12,
-                   57, 106, 107, 138, 163, 176, 178, 224, 241, 296, 304, 305, 308, 309, 310, 311, 312, 313, 314, 315,
-                   316, 317, 318, 319, 321, 332, 333, 334, 335, 342, 411, 418, 420, 426, 451, 463, 464, 490, 501, 580,
-                   592, 593, 603, 678, 692, 693, 694, 696, 698, 702, 724, 734, 738, 745, 749, 751, 754, 767, 787, 825,
-                   831, 846, 851, 875, 929, 991, 1002, 1137]
-    # para certif SLORAS task 1025, us 734
-
-    with open(path + filename + '.csv', encoding="latin-1") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        # loop all files and print pdf
-        for row in csv_reader:
-            if line_count == 0:
-                pdf.cell(200, 10, txt=filename, ln=line_count, align='C')
-                pdfWeek.cell(200, 10, txt=filename, ln=line_count, align='C')
-                line_count += 1
-            else:
-                t = Task(row[2], row[3], row[4], row[12], row[13], row[23], row[25], row[28])
-
-                # para certif SLORAS task 1025, us 734
-                # task 1025, us 734
-                if int(row[4]) in userstories:
-                    if row[28] != '':
-                        horasUS = horasUS + float(row[28].replace(",", "."))
-                    else:
-                        horasUS = horasUS + 8.5
-                # para certif SLORAS task 1025, us 734
-                # task 1025, us 734
-
-                pdf.cell(200, 10, txt='', ln=line_count, align='L')
-                pdf.cell(200, 10, txt=str(line_count), ln=line_count, align='L')
-
-                pdf.set_font("Arial", 'B', 15)
-                pdf.multi_cell(200, 10, txt=f'{t.assigned} - {t.subject}', align='L')
-                pdf.set_font("Arial", size=15)
-
-                pdf.multi_cell(200, 10, txt=str(t.description), align='L')
-                pdf.cell(200, 10, txt=f'--> STATUS: {t.status}', ln=line_count, align='L')
-                pdf.cell(200, 10, txt=f'--> INIT DATE: {t.init_date[0:19]}', ln=line_count, align='L')
-                pdf.cell(200, 10, txt=f'--> END DATE: {t.fin_date[0:19]}', ln=line_count, align='L')
-
-                h = '--> HOURS: 8' if t.hours == '' else f'--> HOURS: {t.hours}'
-                pdf.cell(200, 10, txt=h, ln=line_count, align='L')
-                pdf.cell(200, 10, txt=f'--> USER STORY: {t.us}', ln=line_count, align='L')
-                line_count += 1
-
-                d = datetime.today() - timedelta(days=5)  # weekly pdf with sysdate -5 days
-                date_time_str = t.init_date[2:19]
-                date_time_obj = datetime.strptime(date_time_str, '%y-%m-%d %H:%M:%S')
-                if date_time_obj > d:
-                    pdfWeek.cell(200, 10, txt='', ln=line_count, align='L')
-                    pdfWeek.cell(200, 10, txt=str(line_count), ln=line_count, align='L')
-
-                    pdfWeek.set_font("Arial", 'B', 15)
-                    pdfWeek.multi_cell(200, 10, txt=f'{t.assigned} - {t.subject}', align='L')
-                    pdfWeek.set_font("Arial", size=15)
-
-                    pdfWeek.multi_cell(200, 10, txt=str(t.description), align='L')
-                    pdfWeek.cell(200, 10, txt=f'--> STATUS: {t.status}', ln=line_count, align='L')
-                    pdfWeek.cell(200, 10, txt=f'--> INIT DATE: {t.init_date[0:19]}', ln=line_count, align='L')
-                    pdfWeek.cell(200, 10, txt=f'--> END DATE: {t.fin_date[0:19]}', ln=line_count, align='L')
-
-                    h = '--> HOURS: 8' if t.hours == '' else f'--> HOURS: {t.hours}'
-                    pdfWeek.cell(200, 10, txt=h, ln=line_count, align='L')
-                    pdfWeek.cell(200, 10, txt=f'--> USER STORY: {t.us}', ln=line_count, align='L')
-
-                    # Stats
-                    if t.assigned == 'Alessandro':
-                        countAsalomon = countAsalomon + 1
-                        textAsalomon = textAsalomon + t.subject
-                        cHorasAsalomon = cHorasAsalomon + (float(t.hours.replace(',', '.')) if t.hours != '' else 8)
-
-                    elif t.assigned == 'Jlavina':
-                        countJlavina = countJlavina + 1
-                        textJlavina = textJlavina + t.subject
-                        cHorasJlavina = cHorasJlavina + (float(t.hours.replace(',', '.')) if t.hours != '' else 8)
-
-                    elif t.assigned == 'Alexandru Iulian Cucu':
-                        countAicucu = countAicucu + 1
-                        textAicucu = textAicucu + t.subject
-                        cHorasAicucu = cHorasAicucu + (float(t.hours.replace(',', '.')) if t.hours != '' else 8)
-
-        pdfWeek.cell(200, 10, txt='', ln=line_count, align='L')
-        pdfWeek.set_font("Arial", 'B', 15)
-        pdfWeek.cell(200, 10, txt='ESTADISTICAS', ln=line_count, align='L')
-        pdfWeek.set_font("Arial", size=15)
-
-        pdfWeek.cell(200, 10, txt='Alessandro', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Nº tareas: {countAsalomon}', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Horas: {countAsalomon}', ln=line_count, align='L')
-
-        pdfWeek.cell(200, 10, txt='Jlavina', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Nº tareas: {countJlavina}', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Horas: {cHorasJlavina}', ln=line_count, align='L')
-
-        pdfWeek.cell(200, 10, txt='Aicucu', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Nº tareas: {countAicucu}', ln=line_count, align='L')
-        pdfWeek.cell(200, 10, txt=f'--> Horas: {cHorasAicucu}', ln=line_count, align='L')
-
-    pdf.output(path + filename + ".pdf")
-    pdfWeek.output(path + filename + "Week.pdf")
-    print(horasUS)
-
-
 def epic_dict_printer():
-    filename = "pdf_v2"
-
-    # open pdf and set styles
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=15)
-
-    for e in epic_dict:
-        epic = epic_dict[e]
-        pdf.set_font("Arial", 'B', 15)
-        pdf.multi_cell(200, 10, txt=f'EPIC #{epic.ref} - {epic.subject} - @{epic.assigned}', align='L')
-        pdf.set_font("Arial", size=15)
-
-        pdf.multi_cell(200, 10, txt=f'DESC: {str(epic.description)}', align='L')
-        pdf.multi_cell(200, 10, txt=f'STATUS: {epic.status}', align='L')
-        pdf.multi_cell(200, 10, txt=f'INIT DATE: {epic.init_date}', align='L')
-        pdf.multi_cell(200, 10, txt=f'END DATE: {epic.fin_date}', align='L')
-        pdf.multi_cell(200, 10, txt=f'--> USER STORIES: {epic.uss}', align='L')
-
-        for us in epic.uss:
-            user_story = us_dict[us]
-            pdf.set_font("Arial", 'B', 15)
-            pdf.multi_cell(200, 10, txt=f'      USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
-            pdf.set_font("Arial", size=15)
-
-            pdf.multi_cell(200, 10, txt=f'DESC: {str(user_story.description)}', align='L')
-            pdf.multi_cell(200, 10, txt=f'STATUS: {user_story.status}', align='L')
-            pdf.multi_cell(200, 10, txt=f'INIT DATE: {user_story.init_date}', align='L')
-            pdf.multi_cell(200, 10, txt=f'END DATE: {user_story.fin_date}', align='L')
-            pdf.multi_cell(200, 10, txt=f'--> TASKS: {user_story.tasks}', align='L')
-
-            for t in user_story.tasks:
-                try:
-                    task = task_dict[t]
-                    pdf.set_font("Arial", 'B', 15)
-                    pdf.multi_cell(200, 10, txt=f'            TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
-                    pdf.set_font("Arial", size=15)
-
-                    pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
-                    pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
-                    pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
-                    pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
-                    pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
-                except KeyError:
-                    pass
-        pdf.multi_cell(200, 10, txt="", align='L')
-    pdf.output(filename + ".pdf")
-
-
-def epic_dict_printer2():
     filename = "pdf_v2"
 
     # open pdf and set styles
@@ -337,7 +139,7 @@ def epic_dict_printer2():
 
 # csv_reader()
 estructura_epic_userstory_task('w')
-epic_dict_printer2()
+epic_dict_printer()
 # print(json.dumps(epic_dict, default=lambda o: o.__dict__, sort_keys=True, indent=0))
 # epic_dict_printer()
 print(f'Time elapsed: ', timedelta(seconds = time.time()-start))
