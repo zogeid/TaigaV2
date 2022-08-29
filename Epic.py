@@ -3,10 +3,10 @@ class Epic:
         self.epic_id = int(epic_id)
         self.fin_date = fin_date
         self.init_date = init_date
-        self.status = status
-        self.assigned = assigned
-        self.description = description.replace("{", "_").replace("}", "_")
-        self.subject = subject
+        self.status = status.encode('latin-1', 'replace').decode('latin-1')
+        self.assigned = assigned.encode('latin-1', 'replace').decode('latin-1')
+        self.description = description.encode('latin-1', 'replace').decode('latin-1').replace("{", "_").replace("}", "_")
+        self.subject = subject.encode('latin-1', 'replace').decode('latin-1')
         self.uss = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
         self.ref = ref
         self.us_dict = {}

@@ -2,10 +2,10 @@ class Task:
     def __init__(self, task_id, ref, subject, description, us, assigned, status, init_date, fin_date, hours):
         self.task_id = task_id
         self.ref = ref
-        self.subject = subject
-        self.description = description.replace("{", "_").replace("}", "_")
+        self.subject = subject.encode('latin-1', 'replace').decode('latin-1')
+        self.description = description.encode('latin-1', 'replace').decode('latin-1').replace("{", "_").replace("}", "_")
         self.us = us
-        self.assigned = assigned
+        self.assigned = assigned.encode('latin-1', 'replace').decode('latin-1')
         self.status = status
         self.init_date = init_date
         self.fin_date = fin_date
