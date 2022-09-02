@@ -37,6 +37,7 @@ def struc_task():
                 task = Task(row[0], row[1], row[2], row[3], row[4], row[11], row[13], row[23][2:19], row[25][2:19], row[28])
                 if mode != 'w' or (mode == 'w' and datetime.strptime(task.init_date, '%y-%m-%d %H:%M:%S') > (datetime.today() - timedelta(days=5))):
                     task_dict[int(task.ref)] = task
+    os.remove(filename + '.csv')
 
 
 def struc_us():
@@ -57,7 +58,7 @@ def struc_us():
                         pass
                 if (mode == 'w' and us.task_dict) or mode != 'w':
                     us_dict[int(us.ref)] = us
-
+    os.remove(filename + '.csv')
 
 def struc_epic():
     epic_url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
@@ -77,9 +78,9 @@ def struc_epic():
                         pass
                 if (mode == 'w' and epic.us_dict) or mode != 'w':
                     epic_dict[epic.epic_id] = epic
+    os.remove(filename + '.csv')
 
 
-# mode: w:week, None:all
 def estructura_epic_userstory_task():
     struc_task()
     struc_us()  # genero las us para luego generar Epics y poder coger del dict cada una de las ya creadas
@@ -152,6 +153,7 @@ def epic_dict_printer():
         pdf.multi_cell(200, 10, txt="", align='L')
     pdf.output(filename + ".pdf")
     subprocess.Popen([filename + ".pdf"], shell=True)
+
 
 estructura_epic_userstory_task()
 epic_dict_printer()
