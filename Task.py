@@ -10,6 +10,7 @@ class Task:
         self.init_date = init_date
         self.fin_date = fin_date
         self.hours = hours.replace(",", ".")
+        self.url = f'https://tree.taiga.io/project/dalares-notificaciones/task/{self.ref}'
 
     def __repr__(self):
         return str(self.__dict__)

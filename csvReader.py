@@ -1,3 +1,4 @@
+import subprocess
 import os
 import time
 import csv
@@ -107,8 +108,8 @@ def epic_dict_printer():
         pdf.multi_cell(200, 10, txt=f'EPIC #{epic.ref} - {epic.subject} - @{epic.assigned}', align='L')
         pdf.set_font("Arial", size=9)
 
-        pdf.cell(200, 10, txt=f'DESC: {epic.description}', align='L')
-
+        pdf.multi_cell(200, 10, txt=f'URL: {epic.url}', align='L')
+        pdf.multi_cell(200, 10, txt=f'DESC: {epic.description}', align='L')
         pdf.multi_cell(200, 10, txt=f'STATUS: {epic.status}', align='L')
         pdf.multi_cell(200, 10, txt=f'INIT DATE: {epic.init_date}', align='L')
         pdf.multi_cell(200, 10, txt=f'END DATE: {epic.fin_date}', align='L')
@@ -119,9 +120,10 @@ def epic_dict_printer():
             try:
                 user_story = us_dict[us]
                 pdf.set_font("Arial", 'B', 15)
-                pdf.multi_cell(200, 10, txt=f'--> USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
+                pdf.multi_cell(200, 10, txt=f'USER STORY #{user_story.ref} - {user_story.subject} - @{user_story.assigned}', align='L')
                 pdf.set_font("Arial", size=9)
 
+                pdf.multi_cell(200, 10, txt=f'URL: {user_story.url}', align='L')
                 pdf.multi_cell(200, 10, txt=f'DESC: {str(user_story.description)}', align='L')
                 pdf.multi_cell(200, 10, txt=f'STATUS: {user_story.status}', align='L')
                 pdf.multi_cell(200, 10, txt=f'INIT DATE: {user_story.init_date}', align='L')
@@ -136,6 +138,7 @@ def epic_dict_printer():
                         pdf.multi_cell(200, 10, txt=f'TASK #{task.ref} - {task.subject} - @{task.assigned}', align='L')
                         pdf.set_font("Arial", size=9)
 
+                        pdf.multi_cell(200, 10, txt=f'URL: {task.url}', align='L')
                         pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
                         pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
                         pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
@@ -148,7 +151,7 @@ def epic_dict_printer():
                 pass
         pdf.multi_cell(200, 10, txt="", align='L')
     pdf.output(filename + ".pdf")
-    # os.system('evince output.pdf')
+    subprocess.Popen([filename + ".pdf"], shell=True)
 
 estructura_epic_userstory_task()
 epic_dict_printer()

@@ -10,6 +10,7 @@ class Epic:
         self.uss = [int(i) for i in related_us.replace("dalares-notificaciones#", "").split(",")]
         self.ref = ref
         self.us_dict = {}
+        self.url = f'https://tree.taiga.io/project/dalares-notificaciones/epic/{self.ref}'
 
     def __repr__(self):
         return str(self.__dict__)

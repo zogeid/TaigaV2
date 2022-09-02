@@ -10,6 +10,7 @@ class UserStory:
         self.tasks = [int(i) for i in tasks.split(",")] if tasks != '' else []
         self.ref = ref
         self.task_dict = {}
+        self.url = f'https://tree.taiga.io/project/dalares-notificaciones/us/{self.ref}'
 
     def __repr__(self):
         return str(self.__dict__)
