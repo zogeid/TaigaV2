@@ -89,7 +89,7 @@ def estructura_epic_userstory_task():
 
 
 def epic_dict_printer():
-    filename = " Report"
+    filename = f'INFORME DE TAREAS SEMANAL: {(datetime.today() - timedelta(days=5)).strftime("%b %d %Y")} - {datetime.today().strftime("%b %d %Y")}'
 
     # open pdf and set styles
     pdf = FPDF()

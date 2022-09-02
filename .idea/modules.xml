@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/TaigaV2.iml" filepath="$PROJECT_DIR$/.idea/TaigaV2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../cierreMesPy/.idea/cierreMes.iml" filepath="$PROJECT_DIR$/../cierreMesPy/.idea/cierreMes.iml" />
     </modules>
   </component>
 </project>
