@@ -1,3 +1,5 @@
+import datetime
+
 class Task:
     def __init__(self, task_id, ref, subject, description, us, assigned, status, init_date, fin_date, hours):
         self.task_id = task_id
@@ -14,3 +16,13 @@ class Task:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def calculo_horas(self):
+        if self.hours == 0:
+            print("vacias")
+            if datetime.datetime.now().month== (7 or 8):
+                self.hours = 7
+            else:
+                self.hours = 8.5
+
+

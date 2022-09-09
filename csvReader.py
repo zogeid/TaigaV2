@@ -60,6 +60,7 @@ def struc_us():
                     us_dict[int(us.ref)] = us
     os.remove(filename + '.csv')
 
+
 def struc_epic():
     epic_url = 'https://api.taiga.io/api/v1/epics/csv?uuid=1430473ef51d404384cdfcc4a19f631a'
     filename = "Epic" + " - " + str(todayF)
