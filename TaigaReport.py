@@ -24,7 +24,8 @@ fromDate = datetime.strptime('5/10/22', '%d/%m/%y')
 
 
 def format_fecha(fecha):
-    return datetime.strptime(fecha, '%y-%m-%d %H:%M:%S')
+    return datetime.strptime(fecha, '%y-%m-%d %H:%M:%S').strftime('%d/%m/%Y')
+
 
 # Recuperamos las Tasks en función del MODE seleccionado
 def struc_task():
@@ -110,7 +111,7 @@ def epic_dict_printer():
     elif mode == 'a':
         pdf.multi_cell(200, 10, txt=f'INFORME DE TAREAS GLOBAL', align='L')
     elif mode == 'd':
-        pdf.multi_cell(200, 10, txt=f'INFORME DE TAREAS DESDE {(datetime.today() - timedelta(days=5)).strftime("%b %d %Y")}', align='L')
+        pdf.multi_cell(200, 10, txt=f'INFORME DE TAREAS DESDE {(datetime.today() - timedelta(days=5)).strftime("%d %b %Y")}', align='L')
 
     pdf.multi_cell(200, 10, txt="", align='L')
     for e in epic_dict:
