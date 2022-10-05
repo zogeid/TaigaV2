@@ -23,6 +23,9 @@ mode = 'd'
 fromDate = datetime.strptime('5/10/22', '%d/%m/%y')
 
 
+def format_fecha(fecha):
+    return datetime.strptime(fecha, '%y-%m-%d %H:%M:%S')
+
 # Recuperamos las Tasks en función del MODE seleccionado
 def struc_task():
     task_url = 'https://api.taiga.io/api/v1/tasks/csv?uuid=7db9148a134947d89c13468473c193a0'
@@ -119,8 +122,8 @@ def epic_dict_printer():
         pdf.multi_cell(200, 10, txt=f'URL: {epic.url}', align='L')
         pdf.multi_cell(200, 10, txt=f'DESC: {epic.description}', align='L')
         pdf.multi_cell(200, 10, txt=f'STATUS: {epic.status}', align='L')
-        pdf.multi_cell(200, 10, txt=f'INIT DATE: {epic.init_date}', align='L')
-        pdf.multi_cell(200, 10, txt=f'END DATE: {epic.fin_date}', align='L')
+        pdf.multi_cell(200, 10, txt=f'INIT DATE: {format_fecha(epic.init_date)}', align='L')
+        pdf.multi_cell(200, 10, txt=f'END DATE: {format_fecha(epic.fin_date)}', align='L')
         pdf.multi_cell(200, 10, txt=f'--> USER STORIES: {epic.uss}', align='L')
         pdf.multi_cell(200, 10, txt="", align='L')
 
@@ -134,8 +137,8 @@ def epic_dict_printer():
                 pdf.multi_cell(200, 10, txt=f'URL: {user_story.url}', align='L')
                 pdf.multi_cell(200, 10, txt=f'DESC: {str(user_story.description)}', align='L')
                 pdf.multi_cell(200, 10, txt=f'STATUS: {user_story.status}', align='L')
-                pdf.multi_cell(200, 10, txt=f'INIT DATE: {user_story.init_date}', align='L')
-                pdf.multi_cell(200, 10, txt=f'END DATE: {user_story.fin_date}', align='L')
+                pdf.multi_cell(200, 10, txt=f'INIT DATE: {format_fecha(user_story.init_date)}', align='L')
+                pdf.multi_cell(200, 10, txt=f'END DATE: {format_fecha(user_story.init_date)}', align='L')
                 pdf.multi_cell(200, 10, txt=f'--> TASKS: {user_story.tasks}', align='L')
                 pdf.multi_cell(200, 10, txt="", align='L')
 
@@ -149,8 +152,8 @@ def epic_dict_printer():
                         pdf.multi_cell(200, 10, txt=f'URL: {task.url}', align='L')
                         pdf.multi_cell(200, 10, txt=f'DESC: {str(task.description)}', align='L')
                         pdf.multi_cell(200, 10, txt=f'STATUS: {task.status}', align='L')
-                        pdf.multi_cell(200, 10, txt=f'INIT DATE: {task.init_date}', align='L')
-                        pdf.multi_cell(200, 10, txt=f'END DATE: {task.fin_date}', align='L')
+                        pdf.multi_cell(200, 10, txt=f'INIT DATE: {format_fecha(task.init_date)}', align='L')
+                        pdf.multi_cell(200, 10, txt=f'END DATE: {format_fecha(task.init_date)}', align='L')
                         pdf.multi_cell(200, 10, txt=f'HOURS: {task.hours}', align='L')
                         pdf.multi_cell(200, 10, txt="", align='L')
                     except KeyError:
