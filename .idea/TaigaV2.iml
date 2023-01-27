@@ -5,5 +5,8 @@
     <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="cierreMes" />
+    <orderEntry type="module" module-name="inversion" />
+    <orderEntry type="module" module-name="eCommerce" />
+    <orderEntry type="module" module-name="Eshop" />
   </component>
 </module>

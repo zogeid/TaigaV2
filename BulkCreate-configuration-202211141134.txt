@@ -1,0 +1,56 @@
+{
+  "config.version" : "2.0",
+  "config.project.from.csv" : "false",
+  "config.encoding" : "UTF-8",
+  "config.file.id" : "64693092-a497-422d-83e8-dd461813d24e",
+  "config.email.suffix" : "@",
+  "config.file.name" : "Epic - 14-Nov-2022.csv",
+  "config.field.mappings" : {
+    "subject" : {
+      "jira.field" : "summary",
+      "userChanged" : "false",
+      "manualMapping" : "false"
+    },
+    "description" : {
+      "jira.field" : "description",
+      "userChanged" : "false",
+      "manualMapping" : "false"
+    },
+    "id" : {
+      "jira.field" : "issue-id",
+      "userChanged" : "false",
+      "manualMapping" : "false"
+    },
+    "type" : {
+      "jira.field" : "issuetype",
+      "userChanged" : "true",
+      "manualMapping" : "true"
+    },
+    "related_user_stories" : {
+      "jira.field" : "issue-id",
+      "userChanged" : "false",
+      "manualMapping" : "false"
+    },
+    "assigned_to" : {
+      "jira.field" : "assignee",
+      "userChanged" : "false",
+      "manualMapping" : "false"
+    }
+  },
+  "config.csv.file.id" : null,
+  "config.value.mappings" : {
+    "type" : {
+      "1" : "10002"
+    }
+  },
+  "config.delimiter" : ",",
+  "config.project" : {
+    "project.type" : null,
+    "project.key" : "TRIB",
+    "project.description" : null,
+    "project.url" : null,
+    "project.name" : "Tributos",
+    "project.lead" : "70121:83abf0fb-35d0-4436-98b8-99215fb92bc0"
+  },
+  "config.date.format" : "yyyy-MM-dd hh:mm:ss.SSSSSSZ"
+}

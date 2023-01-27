@@ -45,7 +45,7 @@ def struc_task():
                         (mode == 'w' and datetime.strptime(task.init_date, '%y-%m-%d %H:%M:%S') > (datetime.today() - timedelta(days=5))) or \
                         (mode == 'd' and datetime.strptime(task.init_date, '%y-%m-%d %H:%M:%S') > fromDate):
                     task_dict[int(task.ref)] = task
-    os.remove(filename + '.csv')
+    # os.remove(filename + '.csv')
 
 
 def struc_us():
@@ -66,7 +66,7 @@ def struc_us():
                         pass
                 if ((mode == 'w' or mode == 'd') and us.task_dict) or mode == 'a':
                     us_dict[int(us.ref)] = us
-    os.remove(filename + '.csv')
+    # os.remove(filename + '.csv')
 
 
 def struc_epic():
@@ -87,7 +87,7 @@ def struc_epic():
                         pass
                 if ((mode == 'w' or mode == 'd') and epic.us_dict) or mode == 'a':
                     epic_dict[epic.epic_id] = epic
-    os.remove(filename + '.csv')
+    # os.remove(filename + '.csv')
 
 
 def estructura_epic_userstory_task():

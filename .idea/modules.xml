@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Eshop-main/.idea/Eshop.iml" filepath="$PROJECT_DIR$/../Eshop-main/.idea/Eshop.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/TaigaV2.iml" filepath="$PROJECT_DIR$/.idea/TaigaV2.iml" />
       <module fileurl="file://$PROJECT_DIR$/../cierreMesPy/.idea/cierreMes.iml" filepath="$PROJECT_DIR$/../cierreMesPy/.idea/cierreMes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../eCommerce/.idea/eCommerce.iml" filepath="$PROJECT_DIR$/../eCommerce/.idea/eCommerce.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../inversion/.idea/inversion.iml" filepath="$PROJECT_DIR$/../inversion/.idea/inversion.iml" />
     </modules>
   </component>
 </project>
